@@ -1,11 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +11,6 @@ namespace RecurrentJobsUsingHangfire
         private Random _random;
         private IHubContext<MonitoringHub> _monitorHub;
         private Timer _timer = null!;
-        private IHubContext<MonitoringHub> _hub;
 
         public TimedHostedService(
             IHubContext<MonitoringHub> monitorHub,
@@ -34,14 +28,14 @@ namespace RecurrentJobsUsingHangfire
             return Task.CompletedTask;
         }
 
-        private async void DoWork(object? state)
+        private async void DoWork(object state)
         {
             await _monitorHub.Clients.All.SendAsync("ReceiveMessage", _random.Next(-30, 30).ToString());
         }
 
         public Task StopAsync(CancellationToken stoppingToken)
         {
-            _timer?.Change(Timeout.Infinite, 0);
+            _timer.Change(Timeout.Infinite, 0);
 
             return Task.CompletedTask;
         }
