@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,37 +11,31 @@ namespace RecurrentJobsUsingHangfire
 {
     public class TimedHostedService : IHostedService, IDisposable
     {
-        private int executionCount = 0;
-        private readonly ILogger<TimedHostedService> _logger;
+        private Random _random;
+        private IHubContext<MonitoringHub> _monitorHub;
         private Timer _timer = null!;
 
-        public TimedHostedService(ILogger<TimedHostedService> logger)
+        public TimedHostedService(IHubContext<MonitoringHub> monitorHub)
         {
-            _logger = logger;
+            _random = new Random();
+            _monitorHub = monitorHub;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Timed Hosted Service running.");
-
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
                 TimeSpan.FromSeconds(5));
 
             return Task.CompletedTask;
         }
 
-        private void DoWork(object? state)
+        private async void DoWork(object? state)
         {
-            var count = Interlocked.Increment(ref executionCount);
-
-            _logger.LogInformation(
-                "Timed Hosted Service is working. Count: {Count}", count);
+            await _monitorHub.Clients.All.SendAsync("ReceiveMessage", _random.Next(-30, 30).ToString());
         }
 
         public Task StopAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Timed Hosted Service is stopping.");
-
             _timer?.Change(Timeout.Infinite, 0);
 
             return Task.CompletedTask;
