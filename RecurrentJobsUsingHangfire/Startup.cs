@@ -28,8 +28,8 @@ namespace RecurrentJobsUsingHangfire
         {
             services.AddControllers();
             services.AddSignalR();
-            //services.AddDbContext<EFCoreContext>(options
-            //   => options.UseSqlServer(Configuration["ConnectionStrings:DefaultConnection"]));
+            services.AddDbContext<EFCoreContext>(options
+               => options.UseSqlServer(Configuration["ConnectionStrings:DefaultConnection"]));
 
             services.AddHostedService<TimedHostedService>();
         }
