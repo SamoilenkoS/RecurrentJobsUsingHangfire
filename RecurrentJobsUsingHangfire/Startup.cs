@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,6 +27,9 @@ namespace RecurrentJobsUsingHangfire
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddSignalR();
+            //services.AddDbContext<EFCoreContext>(options
+            //   => options.UseSqlServer(Configuration["ConnectionStrings:DefaultConnection"]));
 
             services.AddHostedService<TimedHostedService>();
         }
@@ -46,6 +50,7 @@ namespace RecurrentJobsUsingHangfire
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<MonitoringHub>("/monitoring");
                 endpoints.MapControllers();
             });
         }
